@@ -1,0 +1,106 @@
+<div class="main-content-wrapper">
+
+<div class="new-functionality-form">
+
+  <h3>Add New Functionality</h3>
+
+  <form [formGroup]="functionalityForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" formControlName="name" placeholder="Functionality Name">
+      <div *ngIf="functionalityForm.controls.name.hasError('required') && functionalityForm.controls.name.touched">
+        Name is required.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description">Description:</label>
+      <input type="text" id="description" formControlName="description" placeholder="Functionality Description">
+      <div *ngIf="functionalityForm.controls.description.hasError('required') && functionalityForm.controls.description.touched">
+        Description is required.
+    </div>
+    </div>
+    <div class="form-group">
+      <label for="priority">Priority:</label>
+      <select id="priority" formControlName="priority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+    </div>
+    <button class="submit-btn" type="submit">Add Functionality</button>
+    <button class="go-back-btn" (click)="navigateToProjects()">Back to Projects</button>
+  </form>
+</div>
+
+
+<ul>
+  
+  <li *ngFor="let functionality of functionalities" class="functionality-item">
+    <div class="functionality-card" *ngIf="editingFunctionalityId !== functionality.id">
+
+      <div class="functionality-header" (click)="navigateToTasks(functionality.id)">
+        <h4>{{ functionality.name }}</h4>
+        <span>{{ functionality.status }}</span>
+      </div>
+
+      <p>{{ functionality.description }}</p>
+
+      <div class="functionality-details">
+        <span>Priority: {{ functionality.priority }}</span>
+        <span>Project: {{ functionality.project.name }}</span>
+        <span>Owner: {{ functionality.owner.name }} {{ functionality.owner.lastName }}</span>
+      </div>
+
+      <div class="action-buttons">
+        <button (click)="editFunctionality(functionality.id)">Edit</button>
+        <button class="delete-btn" (click)="deleteFunctionality(functionality.id)">Delete</button>
+      </div>
+
+    </div>
+
+    <div class="functionality-card editing-card" *ngIf="editingFunctionalityId === functionality.id">
+      
+      <form (submit)="submitEditForm(functionality)">
+        <div class="form-group">
+          <label for="editName">Name:</label>
+          <input id="editName" [(ngModel)]="functionality.name" name="name">
+        </div>
+        <div class="form-group">
+          <label for="editDescription">Description:</label>
+          <input id="editDescription" [(ngModel)]="functionality.description" name="description">
+        </div>
+        <div class="form-group">
+        <label for="editPriority">Priority:</label>
+        <select [(ngModel)]="functionality.priority" name="editPriority" id="editPriority">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+        </div>
+        <div class="form-group">
+          <label for="editStatus">Status:</label>
+          <select [(ngModel)]="functionality.status" name="editStatus" id="editStatus">
+            <option value="To-Do">To-Do</option>
+            <option value="Doing">Doing</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <button type="submit">Save</button>
+          <button (click)="stopEditing()">Cancel</button>
+        </div>
+      </form>
+
+    </div>
+
+  </li>
+
+</ul>
+
+<div class="no-functionalities-container" *ngIf="functionalities.length === 0">
+  <h4>No functionalities added yet!</h4>
+  <p>Start by adding a new functionality using the form above.</p>
+</div>
+
+</div> 

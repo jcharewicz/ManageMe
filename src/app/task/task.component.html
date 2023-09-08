@@ -1,0 +1,278 @@
+<div class="main-content-wrapper">
+
+<div class="new-task-form">
+
+  <h3>Add New Task</h3>
+
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" formControlName="name" placeholder="Task Name">
+      <div *ngIf="taskForm.controls.name.hasError('required') && taskForm.controls.name.touched">
+        Name is required.
+      </div>
+    </div>
+    <div class="form-group"> 
+      <label for="description">Description:</label>
+      <input type="text" id="description" formControlName="description" placeholder="Task Description">
+      <div *ngIf="taskForm.controls.description.hasError('required') && taskForm.controls.description.touched">
+        Description is required.
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="priority">Priority:</label>
+      <select id="priority" formControlName="priority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="exectime">Estimated execution time:</label>
+      <input type="text" id="exectime" formControlName="exectime" placeholder="Estimated execution time">
+      <div *ngIf="taskForm.controls.exectime.hasError('required') && taskForm.controls.exectime.touched">
+        Estimated execution time is required.
+      </div>
+    </div>
+    <button class="submit-btn" type="submit">Add task</button>
+    <button class="go-back-btn" (click)="navigateToFunctionalities()">Back to Functionalities</button>
+    <button class="go-back-btn" (click)="navigateToProjects()">Back to Projects</button>
+  </form>
+</div>
+
+
+<div class="kanban-board">
+
+  <!-- To-Do Column -->
+  <div class="kanban-column">
+    <h3>To-Do</h3>
+    <ul cdkDropList #todoList="cdkDropList" [cdkDropListData]="todoTasks" [cdkDropListConnectedTo]="[doingList, doneList]" (cdkDropListDropped)="onDrop($event)">
+      <li *ngFor="let task of todoTasks" class="task-item" cdkDrag>
+        <div class="task-card" *ngIf="editingTaskId !== task.id">
+
+          <div class="task-header">
+            <h4>{{ task.name }}</h4>
+            <span>{{ task.status }}</span>
+          </div>
+    
+          <p>{{ task.description }}</p>
+    
+          <div class="task-details">
+            <span>Priority: {{ task.priority }}</span>
+            <span>Project: {{ task.functionality.project.name }}</span>
+            <span>Functionality: {{ task.functionality.name }}</span>
+            <span>Estimated execution time: {{ task.estimatedExecutionTime }}</span>
+            <span>Add date: {{ task.dateAdded }}</span>
+            <span>Start date: {{ task.startDate }}</span>
+            <span>End date: {{ task.endDate }}</span>
+            <span>Assigned user: {{ task.assignedUser.name }} {{ task.assignedUser.lastName }} </span>
+          </div>
+    
+          <div class="action-buttons">
+            <button (click)="editTask(task.id)">Edit</button>
+            <button class="delete-btn" (click)="deleteTask(task.id)">Delete</button>
+          </div>
+    
+        </div>
+    
+        <div class="task-card editing-card" *ngIf="editingTaskId === task.id">
+          
+          <form (submit)="submitEditForm(task)">
+            <div class="form-group">
+              <label for="editName">Name:</label>
+              <input id="editName" [(ngModel)]="task.name" name="name">
+            </div>
+            <div class="form-group">
+              <label for="editDescription">Description:</label>
+              <input id="editDescription" [(ngModel)]="task.description" name="description">
+            </div>
+            <div class="form-group">
+              <label for="editPriority">Priority:</label>
+              <select [(ngModel)]="task.priority" name="editPriority" id="editPriority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+              </div>
+            <div class="form-group">
+              <label for="editStatus">Status:</label>
+              <select [(ngModel)]="task.status" name="editStatus" id="editStatus">
+                <option value="To-Do">To-Do</option>
+                <option value="Doing">Doing</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editestimatedExecutionTime">Estimated execution time: </label>
+              <input id="editestimatedExecutionTime" [(ngModel)]="task.estimatedExecutionTime" name="estimatedExecutionTime">
+            </div>
+    
+            <div class="action-buttons">
+              <button type="submit">Save</button>
+              <button (click)="stopEditing()">Cancel</button>
+            </div>
+          </form>
+    
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Doing Column -->
+  <div class="kanban-column">
+    <h3>Doing</h3>
+    <ul cdkDropList #doingList="cdkDropList" [cdkDropListData]="doingTasks" [cdkDropListConnectedTo]="[todoList, doneList]" (cdkDropListDropped)="onDrop($event)">
+      <li *ngFor="let task of doingTasks" class="task-item" cdkDrag>
+        <div class="task-card" *ngIf="editingTaskId !== task.id">
+
+          <div class="task-header">
+            <h4>{{ task.name }}</h4>
+            <span>{{ task.status }}</span>
+          </div>
+    
+          <p>{{ task.description }}</p>
+    
+          <div class="task-details">
+            <span>Priority: {{ task.priority }}</span>
+            <span>Project: {{ task.functionality.project.name }}</span>
+            <span>Functionality: {{ task.functionality.name }}</span>
+            <span>Estimated execution time: {{ task.estimatedExecutionTime }}</span>
+            <span>Add date: {{ task.dateAdded }}</span>
+            <span>Start date: {{ task.startDate }}</span>
+            <span>End date: {{ task.endDate }}</span>
+            <span>Assigned user: {{ task.assignedUser.name }} {{ task.assignedUser.lastName }} </span>
+          </div>
+    
+          <div class="action-buttons">
+            <button (click)="editTask(task.id)">Edit</button>
+            <button class="delete-btn" (click)="deleteTask(task.id)">Delete</button>
+          </div>
+    
+        </div>
+    
+        <div class="task-card editing-card" *ngIf="editingTaskId === task.id">
+          
+          <form (submit)="submitEditForm(task)">
+            <div class="form-group">
+              <label for="editName">Name:</label>
+              <input id="editName" [(ngModel)]="task.name" name="name">
+            </div>
+            <div class="form-group">
+              <label for="editDescription">Description:</label>
+              <input id="editDescription" [(ngModel)]="task.description" name="description">
+            </div>
+            <div class="form-group">
+              <label for="editPriority">Priority:</label>
+              <select [(ngModel)]="task.priority" name="editPriority" id="editPriority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+              </div>
+            <div class="form-group">
+              <label for="editStatus">Status:</label>
+              <select [(ngModel)]="task.status" name="editStatus" id="editStatus">
+                <option value="To-Do">To-Do</option>
+                <option value="Doing">Doing</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editestimatedExecutionTime">Estimated execution time: </label>
+              <input id="editestimatedExecutionTime" [(ngModel)]="task.estimatedExecutionTime" name="estimatedExecutionTime">
+            </div>
+    
+            <div class="action-buttons">
+              <button type="submit">Save</button>
+              <button (click)="stopEditing()">Cancel</button>
+            </div>
+          </form>
+    
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Done Column -->
+  <div class="kanban-column">
+    <h3>Done</h3>
+    <ul cdkDropList #doneList="cdkDropList" [cdkDropListData]="doneTasks" [cdkDropListConnectedTo]="[todoList, doingList]" (cdkDropListDropped)="onDrop($event)">
+      <li *ngFor="let task of doneTasks" class="task-item" cdkDrag>
+        <div class="task-card" *ngIf="editingTaskId !== task.id">
+
+          <div class="task-header">
+            <h4>{{ task.name }}</h4>
+            <span>{{ task.status }}</span>
+          </div>
+    
+          <p>{{ task.description }}</p>
+    
+          <div class="task-details">
+            <span>Priority: {{ task.priority }}</span>
+            <span>Project: {{ task.functionality.project.name }}</span>
+            <span>Functionality: {{ task.functionality.name }}</span>
+            <span>Estimated execution time: {{ task.estimatedExecutionTime }}</span>
+            <span>Add date: {{ task.dateAdded }}</span>
+            <span>Start date: {{ task.startDate }}</span>
+            <span>End date: {{ task.endDate }}</span>
+            <span>Assigned user: {{ task.assignedUser.name }} {{ task.assignedUser.lastName }} </span>
+          </div>
+    
+          <div class="action-buttons">
+            <button (click)="editTask(task.id)">Edit</button>
+            <button class="delete-btn" (click)="deleteTask(task.id)">Delete</button>
+          </div>
+    
+        </div>
+    
+        <div class="task-card editing-card" *ngIf="editingTaskId === task.id">
+          
+          <form (submit)="submitEditForm(task)">
+            <div class="form-group">
+              <label for="editName">Name:</label>
+              <input id="editName" [(ngModel)]="task.name" name="name">
+            </div>
+            <div class="form-group">
+              <label for="editDescription">Description:</label>
+              <input id="editDescription" [(ngModel)]="task.description" name="description">
+            </div>
+            <div class="form-group">
+              <label for="editPriority">Priority:</label>
+              <select [(ngModel)]="task.priority" name="editPriority" id="editPriority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+              </div>
+            <div class="form-group">
+              <label for="editStatus">Status:</label>
+              <select [(ngModel)]="task.status" name="editStatus" id="editStatus">
+                <option value="To-Do">To-Do</option>
+                <option value="Doing">Doing</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editestimatedExecutionTime">Estimated execution time: </label>
+              <input id="editestimatedExecutionTime" [(ngModel)]="task.estimatedExecutionTime" name="estimatedExecutionTime">
+            </div>
+    
+            <div class="action-buttons">
+              <button type="submit">Save</button>
+              <button (click)="stopEditing()">Cancel</button>
+            </div>
+          </form>
+    
+        </div>
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="no-tasks-container" *ngIf="tasks.length === 0">
+  <h4>No tasks added yet!</h4>
+  <p>Start by adding a new task using the form above.</p>
+</div>
+
+</div>

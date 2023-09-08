@@ -1,0 +1,11 @@
+<div class="project-card">
+  <div class="project-header">
+      <h2>{{ project.name }}</h2>
+  </div>
+  <div class="project-body">
+      <p>{{ project.description }}</p>
+  </div>
+  <div class="project-footer">
+      <button *ngIf="project" (click)="navigateToFunctionalities()">View Functionalities</button>
+  </div>
+</div>
